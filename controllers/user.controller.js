@@ -1,6 +1,7 @@
 const userModel = require("../model/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { sendVerifcationEmail } = require("../services/verifcationmail.service");
 
 const login = async (req, res) => {
   console.log(req.body);
@@ -42,12 +43,13 @@ const login = async (req, res) => {
 //////////////////////////////////////////////////////////////////////
 
 const dashboard = async (req, res) => {
+  console.log(req.user);
   // console.log(req.headers.authorization.split(" "));
   if (req.headers.authorization) {
     const token = req.headers.authorization.split(" ")[1];
     if (!token) res.send({ message: "your message" });
     try {
-      const decoded = jwt.verfy(token, process.env.jwt_secret);
+      const decoded = jwt.verify(token, process.env.jwt_secret);
       console.log(decoded);
     } catch (err) {
       console.log(err);
@@ -64,11 +66,20 @@ const register = async (req, res) => {
 
     const savedUser = await newUser.save();
     console.log(savedUser);
-    res.redirect("/auth/alluser");
+    await sendVerifcationEmail({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+    });
+
+    res.send(savedUser);
   } catch (err) {
     console.log(err);
   }
 };
+
+// assignment: putting together the knowledge of jwt class and the nodemailer class, take a go at reset password flow and also verify email, make is a full stack project (use react/html with pretty ui for the front end and node/express for the backend), send a reset link to the users email on request of reset password, and also for verify email, when a user registers, send them a verification link to their email for verification. Make research on the flow of these two features and also try and do this assignment with minimum AI assistance (this is your learning process so learn!).
+// Happy coding!!!, see you tomorrow for the next class.
 //////////////////////////////////////////////////////////////////////
 
 const allUser = async (req, res) => {
