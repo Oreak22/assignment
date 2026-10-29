@@ -2,6 +2,7 @@ const userModel = require("../model/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { sendVerifcationEmail } = require("../services/verifcationmail.service");
+const uploadImage = require("../services/cloudinary.service");
 
 const login = async (req, res) => {
   console.log(req.body);
@@ -28,7 +29,7 @@ const login = async (req, res) => {
       };
 
       const token = await jwt.sign({ payload }, process.env.jwt_secret, {
-        expiresIn: "90s",
+        expiresIn: "10000s",
       });
 
       res.status(200).send({ message: "my guy its been a while", token });
@@ -92,4 +93,12 @@ const allUser = async (req, res) => {
 };
 //////////////////////////////////////////////////////////////////////
 
-module.exports = { register, allUser, login, dashboard };
+const userUpload = async (req, res) => {
+  try {
+    const imgres = uploadImage();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports = { register, allUser, login, dashboard, userUpload };
